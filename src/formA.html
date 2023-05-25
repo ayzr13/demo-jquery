@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Tugas Pemweb AJAX</title>
+
+    <!-- File CSS -->
+    <link rel="stylesheet" href="styleA.css" />
+    <!--  Bootstrap -->
+    <link rel="stylesheet" href="../bootstrap/bootstrap-5.3.0-alpha3-dist/css/bootstrap.css" />
+    <script src="../bootstrap/bootstrap-5.3.0-alpha3-dist/js/bootstrap.bundle.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <form method="POST" id="form">
+        <div class="p-1">
+          <div class="p-2">
+            <h3>Form Ayunizar & Cahya</h3>
+          </div>
+          <div class="p-2">
+            <label name="pengguna" class="d-flex">Input Teks :</label>
+            <input type="text" name="teks" required placeholder="Masukkan Teks" />
+            <label name="numerik" class="d-flex">Input Angka :</label>
+            <div class="input-group">
+              <input type="number" name="num" required placeholder="Masukkan Angka" />
+            </div>
+          </div>
+          <button type="button" name="submit" id="submit">Submit</button>
+        </div>
+      </form>
+
+      <div id="dataShow">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">No</th>
+              <th scope="col">Key</th>
+              <th scope="col">Teks</th>
+            </tr>
+          </thead>
+          <tbody id="tbody" class=""></tbody>
+        </table>
+      </div>
+
+      <!-- Java Script -->
+      <script src="https://code.jquery.com/jquery-3.7.0.js" integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
+      <script>
+        $(document).ready(() => {
+          // semua di dalam dokum ini manipulation dom jadi gaperlu refresh gasss
+          let dataArray = [];
+
+          const updateTable = () => {
+            let table = '';
+            if (dataArray.length === 0) {
+              table = `<tr><td colspan="4">Maaf, tidak ada data untuk ditampilkan</td></tr>`;
+            } else {
+              dataArray.forEach((item, index) => {
+                //petik nya ada satu dan beda
+                table += `<tr> 
+                <td>${index + 1}</td>
+                <td>${index}</td>
+                <td>${item}</td>
+                <td>
+                  <button class="edit-btn" data-index="${index}">Edit</button>
+                  <button class="delete-btn" data-index="${index}">Delete</button>
+                </td>
+              </tr>`;
+              });
+            }
+            $('#tbody').html(table).hide().fadeTo(800, 0.8); // animasi fade nya ehek
+          };
+
+          const showOutput = () => {
+            // ini buat nampilin data nya
+            let output = [];
+            for (let i = 0; i < dataArray.length; i++) {
+              output.push(i);
+            }
+            console.log(output);
+          };
+
+          const sendDataToServer = (teks, num) => {
+            $.ajax({
+              // ini pake ajax
+              url: 'phpB.php', // ini nanti inputnya bakal dikabarin ke php trs di array dech
+              type: 'POST',
+              data: { teks: teks, num: num },
+              dataType: 'json', //semua data yang dikirim typenya JSON
+              success: function (response) {
+                if (Array.isArray(response)) {
+                  dataArray = response;
+                  updateTable();
+                  showOutput();
+                } else {
+                  console.log('Data tidak ditemukan');
+                }
+              },
+              error: function () {
+                console.log('Error: Gagal mengirim permintaan ke server');
+              },
+            });
+          };
+
+          $('#submit').click((e) => {
+            e.preventDefault();
+            const teks = $("input[name='teks']").val();
+            const num = parseInt($("input[name='num']").val());
+            if (teks.trim() !== '' && !isNaN(num) && num > 0) {
+              sendDataToServer(teks, num);
+              $("input[name='teks']").val('');
+              $("input[name='num']").val('');
+            }
+          });
+
+          $('#tbody').on('click', '.delete-btn', function () {
+            //ini hapus data
+            var index = $(this).data('index');
+            if (confirm('Yakin dihapus?')) {
+              dataArray.splice(index, 1);
+              updateTable();
+            }
+          });
+
+          $('#tbody').on('click', '.edit-btn', function () {
+            // ini edit data alias update
+            var index = $(this).data('index');
+            var teks = prompt('Masukkan data baru:', dataArray[index]);
+            if (teks !== null && teks.trim() !== '') {
+              dataArray[index] = teks;
+              updateTable();
+            }
+          });
+        });
+      </script>
+    </div>
+  </body>
+</html>
