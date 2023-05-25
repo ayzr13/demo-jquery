@@ -1,5 +1,5 @@
 # demo-jquery
-Tugas Pemrograma Web
+Tugas Pemrograman Web
 Cahya dan Ayun
 
 Pemrograman Web - D
